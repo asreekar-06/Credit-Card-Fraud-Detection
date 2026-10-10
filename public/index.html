@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Credit Card Fraud Detection</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3f5f8;--sf:#fff;--ink:#0f1c2e;--mut:#5b6b80;--ln:#dde3ec;--ac:#2447d6;--fr:#c4261d;--rv:#b9770e;--ok:#17794d}
+@media(prefers-color-scheme:dark){:root{--bg:#0c1220;--sf:#131c2e;--ink:#e8eef8;--mut:#93a3ba;--ln:#25324a;--ac:#6f8cff;--fr:#ff6b60;--rv:#f0b34a;--ok:#4cc58a}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 'Instrument Sans',system-ui,sans-serif}
+h1,h2{font-family:'Bricolage Grotesque',system-ui,sans-serif;margin:0;letter-spacing:-.02em}
+header,main{max-width:980px;margin:0 auto;padding:0 20px}header{padding-top:28px}
+h1{font-size:clamp(26px,5vw,38px)}header p{color:var(--mut);margin:6px 0 18px;max-width:60ch}
+nav{display:flex;gap:4px;border-bottom:1px solid var(--ln);overflow-x:auto}
+nav button{background:none;border:0;border-bottom:3px solid transparent;color:var(--mut);font:inherit;font-weight:600;padding:10px 14px;cursor:pointer;white-space:nowrap}
+nav button[aria-selected=true]{color:var(--ink);border-color:var(--ac)}
+.n{background:var(--rv);color:#fff;border-radius:99px;padding:0 7px;font-size:12px;margin-left:6px}
+section{display:none;padding:22px 0 60px}section.on{display:block}
+.box{background:var(--sf);border:1px solid var(--ln);border-radius:10px;padding:18px;margin-bottom:16px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:end}
+label{display:block;font-size:13px;color:var(--mut);margin-bottom:3px}
+input[type=number]{width:100%;padding:8px 10px;border:1px solid var(--ln);border-radius:6px;background:var(--bg);color:var(--ink);font:inherit}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin-top:12px}
+button.b{background:var(--ac);color:#fff;border:0;border-radius:6px;padding:9px 16px;font:inherit;font-weight:600;cursor:pointer}
+button.g{background:none;color:var(--ink);border:1px solid var(--ln);border-radius:6px;padding:9px 14px;font:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+button:disabled{opacity:.5;cursor:wait}
+.bar{position:relative;height:14px;border-radius:7px;margin:34px 0 8px;display:flex;overflow:visible}
+.bar i{display:block;height:100%}.bar .z1{background:var(--ok);border-radius:7px 0 0 7px}.bar .z2{background:var(--rv)}.bar .z3{background:var(--fr);border-radius:0 7px 7px 0}
+.mk{position:absolute;top:-8px;width:4px;height:30px;background:var(--ink);border-radius:2px;transition:left .5s cubic-bezier(.2,.8,.2,1)}
+.mk b{position:absolute;top:-24px;left:50%;transform:translateX(-50%);font-size:13px}
+.tag{display:inline-block;border-radius:6px;padding:2px 10px;font-weight:600;color:#fff}
+.fraud{background:var(--fr)}.review{background:var(--rv)}.genuine{background:var(--ok)}
+.verdict{font-family:'Bricolage Grotesque',sans-serif;font-size:28px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:16px}
+.stats div{background:var(--sf);border:1px solid var(--ln);border-radius:10px;padding:12px}.stats b{font-size:24px;display:block}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;padding:8px;border-bottom:1px solid var(--ln)}th{color:var(--mut);font-weight:500}
+.wrap{overflow-x:auto}.mut{color:var(--mut)}.err{color:var(--fr);font-weight:500}
+.item{display:flex;gap:12px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+@media(prefers-reduced-motion:reduce){.mk{transition:none}}
+button[aria-pressed=true]{background:var(--ac);color:#fff;border-color:var(--ac)}</style></head><body>
+<header><h1>Credit Card Fraud Detection</h1>
+<p>Score a transaction or a whole file. Uncertain cases go to a person instead of being decided automatically.</p>
+<nav role="tablist" id="nav"></nav></header>
+<main>
+<section id="single"><div class="box"><p class="mut" style="margin-top:0">Pick a sample transaction, or enter the time and amount. The system tells you how likely it is to be fraud and what to do about it.</p><div class="row" style="justify-content:flex-end;gap:14px;font-size:13px;margin:0 0 8px"><span class="mut">View:</span><label style="display:inline-flex;gap:5px;align-items:center;margin:0;cursor:pointer"><input type="radio" name="view" id="m-in" checked> ₹ and IST</label><label style="display:inline-flex;gap:5px;align-items:center;margin:0;cursor:pointer"><input type="radio" name="view" id="m-raw"> Original values</label></div>
+<div class="row"><button class="g" id="sg">Load genuine sample</button><button class="g" id="sf">Load fraud sample</button><button class="g" id="sr">Load random sample</button><span class="mut" id="smsg"></span></div>
+<div class="grid" id="main-in"></div><p class="mut" id="dnote" style="font-size:13px;margin:10px 0 0">Demo assumptions: the dataset does not state its currency or the clock time of its first transaction. This page assumes it starts at 12:00 am IST on Day 1 and that ₹100 is 1 unit of the dataset's amount. These only change how values are entered and shown, not the model. The time is treated as a time on the dataset's first day.</p>
+<details style="margin-top:12px"><summary class="mut" style="cursor:pointer">Hidden pattern features V1 to V28 (anonymised by the data provider, filled in automatically by the samples)</summary><div class="grid" id="v-in"></div></details>
+<p><button class="b" id="chk">Check transaction</button> <span class="err" id="serr"></span></p></div>
+<div class="box" id="res" hidden><div class="verdict" id="vd"></div>
+<div class="bar"><i class="z1" id="z1"></i><i class="z2" id="z2"></i><i class="z3" id="z3"></i><div class="mk" id="mk"><b id="mkv"></b></div></div>
+<div class="mut" id="vnote"></div></div></section>
+
+<section id="bulk"><div class="box"><label for="file">Upload a CSV file of transactions (same columns as the dataset: Time, Amount and V1 to V28)</label>
+<input type="file" id="file" accept=".csv"> <span class="mut" id="bmsg"></span><div class="err" id="berr"></div></div>
+<div id="bout" hidden><div class="stats" id="stats"></div>
+<div class="box"><div class="row" style="justify-content:space-between"><h2 style="font-size:20px">Flagged and uncertain rows</h2><button class="g" id="dl">Download all results</button></div>
+<div class="wrap"><table><thead><tr><th>Row</th><th>Time</th><th>Amount</th><th>Chance of fraud</th><th>Decision</th></tr></thead><tbody id="btb"></tbody></table></div></div></div></section>
+
+<section id="queue"><div class="box"><h2 style="font-size:20px">Review queue</h2><p class="mut">Transactions the model was not sure about. Your decision is saved to the feedback log.</p><div id="qlist"></div></div></section>
+
+<section id="log"><div class="stats" id="lstats"></div>
+<div class="box"><div class="row" style="justify-content:space-between"><h2 style="font-size:20px">Feedback log</h2><span><button class="g" id="ldl">Download CSV</button> <button class="g" id="lclr">Clear</button></span></div>
+<div class="wrap"><table><thead><tr><th>Time</th><th>Source</th><th>Probability</th><th>Model's guess</th><th>Reviewer's decision</th><th>Matched model?</th></tr></thead><tbody id="ltb"></tbody></table></div>
+<p class="mut" id="lempty">No decisions yet.</p></div></section>
+</main>
+<script>
+const $=id=>document.getElementById(id),V=Array.from({length:28},(_,i)=>'V'+(i+1)),COLS=['Time','Amount',...V];
+let SAMPLES=[],Q=load('fq'),LOG=load('fl'),LOW=.2,HIGH=.8,last=null,curLabel=null;
+function load(k){try{return JSON.parse(localStorage.getItem(k))||[]}catch(e){return[]}}
+function save(){try{localStorage.setItem('fq',JSON.stringify(Q));localStorage.setItem('fl',JSON.stringify(LOG))}catch(e){}}
+const TABS=[['single','Single check'],['bulk','Bulk analysis'],['queue','Review queue'],['log','Feedback log']];
+$('nav').innerHTML=TABS.map(t=>`<button role="tab" data-t="${t[0]}">${t[1]}<span class="n" id="n-${t[0]}" hidden></span></button>`).join('');
+function show(t){document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id===t));document.querySelectorAll('nav button').forEach(b=>b.setAttribute('aria-selected',b.dataset.t===t))}
+$('nav').onclick=e=>{const b=e.target.closest('button');if(b)show(b.dataset.t)};show('single');
+const FS='padding:8px;border:1px solid var(--ln);border-radius:6px;background:var(--bg);color:var(--ink);font:inherit';
+COLS.forEach(c=>{const d=document.createElement('div');
+if(c==='Time'){d.style.gridColumn='span 2';d.innerHTML=`<div class="fr"><label for="t-hm">Time of transaction (IST, assumed)</label><input type="time" id="t-hm" style="${FS}"></div><div class="rw" hidden><label for="r-time">Time (seconds since the first transaction)</label><input type="number" step="any" id="r-time"></div><input type="number" id="i-Time" hidden><div class="mut" id="tnote" style="font-size:12px"></div>`}
+else if(c==='Amount')d.innerHTML=`<div class="fr"><label for="a-inr">Amount (₹)</label><input type="number" step="any" min="0" id="a-inr"></div><div class="rw" hidden><label for="r-amt">Amount (dataset units)</label><input type="number" step="any" min="0" id="r-amt"></div><input type="number" id="i-Amount" hidden><div class="mut" id="inr" style="font-size:12px"></div>`;
+else d.innerHTML=`<label for="i-${c}">${c}</label><input type="number" step="any" id="i-${c}">`;
+$(c==='Time'||c==='Amount'?'main-in':'v-in').appendChild(d)});
+fetch('sample_transactions.csv').then(r=>r.text()).then(t=>{SAMPLES=csv(t)}).catch(()=>{});
+function csv(t){const L=t.trim().split(/\r?\n/),h=L[0].split(',').map(s=>s.replace(/"/g,'').trim());return L.slice(1).filter(Boolean).map(l=>{const v=l.split(','),o={};h.forEach((k,i)=>o[k]=v[i]);return o})}
+function sample(cls){const s=SAMPLES.filter(r=>cls===undefined||r.Class==cls);if(!s.length){$('smsg').textContent='Samples not loaded. Make sure sample_transactions.csv is in the public folder.';return}
+const r=s[Math.floor(Math.random()*s.length)];COLS.forEach(c=>$('i-'+c).value=r[c]);syncFromSecs(r.Time);showAmt();curLabel=r.Class;$('smsg').textContent='';$('serr').textContent=''}
+$('sg').onclick=()=>sample(0);$('sf').onclick=()=>sample(1);$('sr').onclick=()=>sample();$('single').addEventListener('input',()=>{curLabel=null});
+const RATE=100;/* illustrative only: rupees per 1 unit of Amount. Edit to change the assumption */
+function amt(){const v=parseFloat($('a-inr').value);if(isNaN(v)){$('i-Amount').value='';$('r-amt').value='';$('inr').textContent='';return}$('i-Amount').value=v/RATE;$('r-amt').value=v/RATE;$('inr').textContent=`Sent to the model as ${(v/RATE).toLocaleString('en-IN',{maximumFractionDigits:2})} dataset units (assumed ₹${RATE} per unit)`}
+function showAmt(){const a=parseFloat($('i-Amount').value);$('a-inr').value=isNaN(a)?'':+(a*RATE).toFixed(2);$('r-amt').value=isNaN(a)?'':a;$('inr').textContent=isNaN(a)?'':`Dataset value: ${a} units (assumed ₹${RATE} per unit)`}
+$('a-inr').oninput=amt;
+function fmtTime(s){s=+s;return MODE==='raw'?s+' s':t12(s)}
+function fmtINR(a){if(MODE==='raw')return String(+(+a).toFixed(2));return '₹'+(+a*RATE).toLocaleString('en-IN',{maximumFractionDigits:2})}
+function t12(s){s=+s;const m=Math.floor((s%86400)/60),h=Math.floor(m/60);return `${((h+11)%12)+1}:${String(m%60).padStart(2,'0')} ${h>=12?'pm':'am'}`}
+function syncFromSecs(s){s=+s;if(document.activeElement!==$('r-time'))$('r-time').value=s;const m=Math.floor((s%86400)/60);$('t-hm').value=String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');$('tnote').textContent=`${t12(s)} IST (assumed). Sent to the model as ${s.toLocaleString('en-IN')} seconds.`}
+function syncToSecs(){const[h,m]=($('t-hm').value||'0:0').split(':').map(Number);const t=h*3600+m*60;$('i-Time').value=t;$('r-time').value=t;$('tnote').textContent=`${t12(t)} IST (assumed). Sent to the model as ${t.toLocaleString('en-IN')} seconds.`}
+$('t-hm').onchange=syncToSecs;
+let MODE='in';
+$('r-time').oninput=()=>{const v=$('r-time').value;$('i-Time').value=v;if(v!=='')syncFromSecs(v)};
+$('r-amt').oninput=()=>{const a=parseFloat($('r-amt').value);$('i-Amount').value=isNaN(a)?'':a;$('a-inr').value=isNaN(a)?'':+(a*RATE).toFixed(2);$('inr').textContent=isNaN(a)?'':`Dataset value: ${a} units (assumed ₹${RATE} per unit)`};
+function drawBulk(){if(!last)return;const fl=last.out.map((o,i)=>[o,i]).filter(x=>x[0].decision!=='genuine');$('btb').innerHTML=fl.slice(0,100).map(([o,i])=>`<tr><td>${i+1}</td><td>${fmtTime(last.rows[i].Time)}</td><td>${fmtINR(last.rows[i].Amount)}</td><td>${pct(o.probability)}</td><td><span class="tag ${o.decision}">${LBL[o.decision]}</span></td></tr>`).join('')||'<tr><td colspan="5" class="mut">Nothing flagged.</td></tr>'}
+function setMode(m){MODE=m;document.querySelectorAll('.fr').forEach(e=>e.hidden=m!=='in');document.querySelectorAll('.rw').forEach(e=>e.hidden=m!=='raw');['inr','tnote','dnote'].forEach(i=>$(i).hidden=m!=='in');$('m-in').setAttribute('aria-pressed',m==='in');$('m-raw').setAttribute('aria-pressed',m==='raw');render();drawBulk()}
+$('m-in').onchange=()=>setMode('in');$('m-raw').onchange=()=>setMode('raw');
+async function predict(rows){const r=await fetch('/api/predict',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({rows})});
+let j={};try{j=await r.json()}catch(e){}if(!r.ok)throw new Error(j.error||'The server could not score this request.');LOW=j.low;HIGH=j.high;return j.results}
+const pct=p=>p>0&&p<.001?'<0.1%':(p*100).toFixed(1)+'%',lean=p=>p>=.5?'fraud':'genuine',LBL={fraud:'Likely fraud',genuine:'Looks genuine',review:'Needs review'};
+$('chk').onclick=async()=>{const row={};$('serr').textContent='';
+for(const c of COLS){const v=$('i-'+c).value;if(v===''){$('serr').textContent='Fill in '+c+' or load a sample.';return}row[c]=v}
+$('chk').disabled=true;try{const[r]=await predict([row]);
+$('res').hidden=false;$('vd').innerHTML=`<span class="tag ${r.decision}">${{fraud:'Likely fraud',genuine:'Looks genuine',review:'Needs review'}[r.decision]}</span> <span class="mut" style="font-size:18px">${pct(r.probability)} fraud probability</span>`;
+$('z1').style.width=LOW*100+'%';$('z2').style.width=(HIGH-LOW)*100+'%';$('z3').style.width=(1-HIGH)*100+'%';
+$('mk').style.left=`calc(${Math.min(r.probability,.995)*100}% - 2px)`;$('mkv').textContent=pct(r.probability);
+$('vnote').textContent={fraud:`This looks like fraud: the model is ${pct(r.probability)} sure. Suggested action: block it and contact the cardholder.`,genuine:`This looks normal: there is only a ${pct(r.probability)} chance of fraud. Suggested action: approve it.`,review:`The model is not sure (${pct(r.probability)} chance of fraud), so a person should check it before it is approved or blocked. It has been added to the review queue.`}[r.decision]+` Rule used: up to ${LOW*100}% is approved, ${HIGH*100}% or more is flagged, and anything in between goes to a person.`+(curLabel===null?'':` Actual answer in the dataset: ${curLabel==1?'fraud':'genuine'}.`);
+if(r.decision==='review'){Q.push({id:'Single check '+new Date().toLocaleTimeString(),p:r.probability,t:row.Time,a:row.Amount});save();render()}
+}catch(e){$('serr').textContent=e.message}$('chk').disabled=false};
+const BN=2000;
+$('file').onchange=async e=>{const f=e.target.files[0];if(!f)return;$('berr').textContent='';$('bout').hidden=true;
+try{const rows=csv(await f.text());if(!rows.length)throw new Error('The file has no rows.');
+const miss=COLS.filter(c=>!(c in rows[0]));if(miss.length)throw new Error('Missing columns: '+miss.slice(0,6).join(', ')+(miss.length>6?'...':''));
+const out=[];for(let i=0;i<rows.length;i+=BN){$('bmsg').textContent=`Scoring ${Math.min(i+BN,rows.length)} of ${rows.length}...`;
+out.push(...await predict(rows.slice(i,i+BN).map(r=>Object.fromEntries(COLS.map(c=>[c,r[c]])))))}
+$('bmsg').textContent=f.name;last={rows,out};
+const n=d=>out.filter(o=>o.decision===d).length;
+$('stats').innerHTML=[['Transactions checked',rows.length],['Look genuine',n('genuine')],['Likely fraud',n('fraud')],['Need review',n('review')]].map(s=>`<div><b>${s[1]}</b>${s[0]}</div>`).join('');
+const fl=out.map((o,i)=>[o,i]).filter(x=>x[0].decision!=='genuine');
+$('btb').innerHTML=fl.slice(0,100).map(([o,i])=>`<tr><td>${i+1}</td><td>${fmtTime(rows[i].Time)}</td><td>${fmtINR(rows[i].Amount)}</td><td>${pct(o.probability)}</td><td><span class="tag ${o.decision}">${LBL[o.decision]}</span></td></tr>`).join('')||'<tr><td colspan="5" class="mut">Nothing flagged.</td></tr>';
+fl.filter(x=>x[0].decision==='review').forEach(([o,i])=>Q.push({id:f.name+' row '+(i+1),p:o.probability,t:rows[i].Time,a:rows[i].Amount}));save();render();$('bout').hidden=false;
+}catch(er){$('berr').textContent=er.message;$('bmsg').textContent=''}};
+$('dl').onclick=()=>{if(!last)return;const h=Object.keys(last.rows[0]);dl('results.csv',[h.concat(['fraud_probability','decision']).join(',')].concat(last.rows.map((r,i)=>h.map(k=>r[k]).concat([last.out[i].probability,last.out[i].decision]).join(','))).join('\n'))};
+function dl(n,t){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/csv'}));a.download=n;a.click()}
+function decide(i,h){const q=Q.splice(i,1)[0];LOG.unshift({ts:new Date().toLocaleString(),src:q.id,p:q.p,lean:lean(q.p),h});save();render()}
+window.decide=decide;
+function render(){const set=(id,n)=>{$('n-'+id).hidden=!n;$('n-'+id).textContent=n};set('queue',Q.length);
+$('qlist').innerHTML=Q.map((q,i)=>`<div class="item" style="padding:10px 0;border-top:1px solid var(--ln)"><div><b>${q.id}</b><div class="mut">${fmtTime(q.t)}, ${fmtINR(q.a)}, ${pct(q.p)} chance of fraud</div></div><div><button class="b" style="background:var(--fr)" onclick="decide(${i},'fraud')">Mark fraud</button> <button class="b" style="background:var(--ok)" onclick="decide(${i},'genuine')">Mark genuine</button></div></div>`).join('')||'<p class="mut">Nothing to review. Uncertain transactions will show up here.</p>';
+const ag=LOG.filter(l=>l.lean===l.h).length;
+$('lstats').innerHTML=`<div><b>${LOG.length}</b>Decisions</div><div><b>${LOG.length?Math.round(ag/LOG.length*100)+'%':'n/a'}</b>Matched the model's guess</div><div><b>${Q.length}</b>Waiting</div>`;
+$('ltb').innerHTML=LOG.map(l=>`<tr><td>${l.ts}</td><td>${l.src}</td><td>${pct(l.p)}</td><td>${l.lean}</td><td>${l.h}</td><td>${l.lean===l.h?'Yes':'No'}</td></tr>`).join('');$('lempty').hidden=!!LOG.length}
+$('ldl').onclick=()=>dl('feedback_log.csv',['time,source,fraud_probability,model_leaned,reviewer_said,agree'].concat(LOG.map(l=>[l.ts.replace(',',''),l.src,l.p,l.lean,l.h,l.lean===l.h].join(','))).join('\n'));
+$('lclr').onclick=()=>{if(confirm('Delete the whole feedback log?')){LOG=[];save();render()}};
+render();
+</script></body></html>
