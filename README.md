@@ -41,28 +41,43 @@ Evaluated with precision, recall, F1 and PR-AUC on the untouched test set (56,74
 
 The deployed model is a Random Forest refit on 80% of the training data (to leave a validation set for choosing the band). On the test set:
 
-	Plain 0.5 threshold	With review band (0.2 / 0.8)
-Frauds caught automatically	72	63
-Frauds sent to a human	0	14
-Frauds missed	23	18
-False alarms reaching customers	9	2
-Genuine transactions sent to a human	0	26
+### Comparison: Plain Threshold vs. Review Band
+
+| Metric | Plain 0.5 Threshold | With Review Band (0.2 / 0.8) |
+|---|---:|---:|
+| Frauds Caught Automatically | 72 | 63 |
+| Frauds Sent to a Human | 0 | 14 |
+| Frauds Missed | 23 | 18 |
+| False Alarms Reaching Customers | 9 | 2 |
+| Genuine Transactions Sent to a Human | 0 | 26 |
 
 If reviewers decide correctly, the band catches 77 of 95 frauds (recall about 0.81). With only 95 frauds in the test set, small differences between models are noise.
 
-Tech stack
-Training: Python, pandas, NumPy, scikit-learn 1.6.1, imbalanced-learn, XGBoost, joblib (Google Colab)
-Backend: Python function on Vercel (api/predict.py)
-Frontend: HTML, CSS and JavaScript (public/index.html)
-Storage: review queue and feedback log are kept in the browser (localStorage)
-Project structure
-api/predict.py            scoring function (loads the model, applies the review band)
-model/fraud_model.joblib  trained model, scaler, column order and thresholds
-public/index.html         web interface
-public/sample_transactions.csv   30 test transactions for the sample buttons
-Notebooks/                training notebook (Google Colab)
-test_local.py             checks the saved model on the 30 samples
-requirements.txt, pyproject.toml, vercel.json   deployment settings
+**Tech stack**
+**Training**: Python, pandas, NumPy, scikit-learn 1.6.1, imbalanced-learn, XGBoost, joblib (Google Colab)
+**Backend**: Python function on Vercel (api/predict.py)
+**Frontend**: HTML, CSS and JavaScript (public/index.html)**
+Storage**: review queue and feedback log are kept in the browser (localStorage)
+
+**Project structure**
+## 📁 Project Structure
+
+```text
+fraud-detection/
+├── api/
+│   └── predict.py                  # Prediction API and review-band logic
+├── model/
+│   └── fraud_model.joblib          # Trained model, scaler, column order, thresholds
+├── public/
+│   ├── index.html                  # Web interface
+│   └── sample_transactions.csv     # 30 sample transactions for testing
+├── Notebooks/
+│   └── training.ipynb              # Model training (Google Colab)
+├── test_local.py                   # Tests the saved model on 30 samples
+├── requirements.txt                # Python dependencies
+├── pyproject.toml                  # Project configuration
+└── vercel.json                     # Vercel deployment configuration
+```
 Run it
 
 Check the model locally
