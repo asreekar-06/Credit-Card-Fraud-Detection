@@ -92,7 +92,7 @@ The deployed model is a Random Forest refit on 80% of the training data (to leav
 
 ## Project Structure
 
-## 📁 Project Structure
+## Project Structure
 
 ```text
 CC_Fraud_app/
