@@ -32,6 +32,7 @@ Evaluated with precision, recall, F1 and PR-AUC on the untouched test set (56,74
 
 **Results (test set, default 0.5 threshold)**
 **Model	                    Precision	Recall	F1		PR-AUC	Missed frauds|	False alarms**
+
 -----------------------------------------------------------------------------------------------
 Logistic Regression	        0.054	    0.874	0.101	0.673	12			 |1,463
 Linear SVM (100K sample)	0.055	    0.874	0.103	0.658	12			 |1,432
