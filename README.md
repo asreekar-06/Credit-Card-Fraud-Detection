@@ -80,15 +80,16 @@ The deployed model is a Random Forest refit on 80% of the training data (to leav
 | False Alarms Reaching Customers | 9 | 2 |
 | Genuine Transactions Sent to a Human | 0 | 26 |
 
-If reviewers decide correctly, the band catches 77 of 95 frauds (recall about 0.81). With only 95 frauds in the test set, small differences between models are noise.
+- If reviewers decide correctly, the band catches 77 of 95 frauds (recall about 0.81).
+- With only 95 frauds in the test set, small differences between models are noise.
 
-**Tech stack**
-**Training**: Python, pandas, NumPy, scikit-learn 1.6.1, imbalanced-learn, XGBoost, joblib (Google Colab)
-**Backend**: Python function on Vercel (api/predict.py)
-**Frontend**: HTML, CSS and JavaScript (public/index.html)**
-Storage**: review queue and feedback log are kept in the browser (localStorage)
+## Tech Stack
 
-**Project structure**
+- **Training:** Python, pandas, NumPy, scikit-learn 1.6.1, imbalanced-learn, XGBoost, joblib (Google Colab).
+- **Backend:** Python function on Vercel (`api/predict.py`).
+- **Frontend:** HTML, CSS and JavaScript (`public/index.html`).
+- **Storage:** Review queue and feedback log are kept in the browser (`localStorage`).
+
 ## Project Structure
 
 ```text
