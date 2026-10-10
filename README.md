@@ -4,6 +4,12 @@ A web-based fraud detection system that scores credit card transactions and send
 
 **Live Demo:** https://credit-card-fraud-detection-swart.vercel.app/
 
+## About
+
+Credit card fraud is rare (0.17% of transactions in the ULB dataset used here), so a model can look accurate while missing most fraud. This project trains and compares four classifiers, with SMOTE applied to the training data only, deploys a Random Forest as a web app, and sends the transactions it is unsure about to a human reviewer. Reviewer decisions are saved to a feedback log for later analysis.
+
+Built as a B.Tech CSE (AI & ML) project at Samskruti College of Engineering & Technology, Hyderabad.
+
 ## Features
 
 - **Single Check**
