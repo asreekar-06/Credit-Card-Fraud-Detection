@@ -152,7 +152,15 @@ The ULB dataset is not included in this repository. Download "Credit Card Fraud 
 - **Review Band Limitation:** Frauds scored below 0.2 are approved automatically, so the review band cannot catch cases the model is confidently wrong about (18 in the test set).
 - **Future Work:** Real-time monitoring, explainable AI, spending-pattern analysis, and live banking API integration.
 
-**Team**
-Addepalli Sreekar, Adepoju Sandeep Chary, Bushipaka Vamshi, Nara Abhirama
+## Team
 
-**Guide**: Ms. V. Veda Sri, Assistant Professor, Department of CSE (AI & ML), Samskruti College of Engineering & Technology, Hyderabad
+- Addepalli Sreekar
+- Adepoju Sandeep Chary
+- Bushipaka Vamshi
+- Nara Abhirama
+
+**Guide:** Ms. V. Veda Sri
+
+- **Designation:** Assistant Professor
+- **Department:** CSE (AI & ML)
+- **Institution:** Samskruti College of Engineering & Technology, Hyderabad
