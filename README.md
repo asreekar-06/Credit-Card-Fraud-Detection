@@ -30,14 +30,14 @@ SMOTE on the training set only. The test set is never resampled.
 Four classifiers trained and compared: Logistic Regression, linear SVM, Random Forest, XGBoost.
 Evaluated with precision, recall, F1 and PR-AUC on the untouched test set (56,746 rows, 95 frauds).
 
-**Results (test set, default 0.5 threshold)**
-**Model	                    Precision	Recall	F1		PR-AUC	Missed frauds|	False alarms**
+### Results (Test Set, Default 0.5 Threshold)
 
------------------------------------------------------------------------------------------------
-Logistic Regression	        0.054	    0.874	0.101	0.673	12			 |1,463
-Linear SVM (100K sample)	0.055	    0.874	0.103	0.658	12			 |1,432
-Random Forest	            0.914	    0.779	0.841	0.807	21			 |7
-XGBoost                 	0.743		0.789	0.765	0.820	20			 |26
+| Model | Precision | Recall | F1 | PR-AUC | Missed Frauds | False Alarms |
+|---|---:|---:|---:|---:|---:|---:|
+| Logistic Regression | 0.054 | 0.874 | 0.101 | 0.673 | 12 | 1,463 |
+| Linear SVM (100K sample) | 0.055 | 0.874 | 0.103 | 0.658 | 12 | 1,432 |
+| Random Forest | 0.914 | 0.779 | 0.841 | 0.807 | 21 | 7 |
+| XGBoost | 0.743 | 0.789 | 0.765 | 0.820 | 20 | 26 |
 
 The deployed model is a Random Forest refit on 80% of the training data (to leave a validation set for choosing the band). On the test set:
 
