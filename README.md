@@ -2,7 +2,7 @@
 
 A web-based fraud detection system that scores credit card transactions and sends uncertain cases to a human reviewer instead of deciding them automatically.
 
-**Live Demo:** Add your Vercel link here
+**Live Demo:** https://credit-card-fraud-detection-swart.vercel.app/
 
 ## Features
 
