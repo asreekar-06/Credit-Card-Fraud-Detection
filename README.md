@@ -96,17 +96,12 @@ The deployed model is a Random Forest refit on 80% of the training data (to leav
 - **Frontend:** HTML, CSS and JavaScript (`public/index.html`).
 - **Storage:** Review queue and feedback log are kept in the browser (`localStorage`).
 
-## Project Structure
 
 ## Project Structure
 
 ```text
-CC_Fraud_app/
-├── .vercel/
-│   ├── project.json              # Vercel project configuration
-│   └── README.txt                # Vercel-generated file
+Credit-Card-Fraud-Detection/
 ├── api/
-│   ├── __pycache__/              # Python bytecode cache
 │   └── predict.py                # Prediction API and review-band logic
 ├── model/
 │   └── fraud_model.joblib        # Trained model, scaler, column order, thresholds
@@ -114,13 +109,14 @@ CC_Fraud_app/
 │   └── CC_Fraud_detection.ipynb  # Model training notebook (Google Colab)
 ├── public/
 │   ├── index.html                # Web interface
-│   └── sample_transactions.csv   # 30 sample transactions for testing
+│   └── sample_transactions.csv   # 30 sample transactions for the sample buttons
 ├── .gitignore                    # Files excluded from Git
-├── LICENSE                       # Project license
+├── LICENSE                       # MIT license
+├── README.md                     # Project overview
 ├── pyproject.toml                # Project configuration
 ├── requirements.txt              # Python dependencies
-├── sample_transactions.csv       # Sample transaction dataset
-├── test_local.py                 # Tests the saved model on sample transactions
+├── sample_transactions.csv       # Same 30 samples, read by test_local.py
+├── test_local.py                 # Tests the saved model on the sample transactions
 └── vercel.json                   # Vercel deployment configuration
 ```
 
