@@ -2,26 +2,26 @@
 
 A web-based fraud detection system that scores credit card transactions and sends uncertain cases to a human reviewer instead of deciding them automatically.
 
-Live demo: add your Vercel link here
+**Live demo**: add your Vercel link here
 
-What it does
-Single check: score one transaction and get a verdict (likely fraud, looks genuine, or needs review) with the fraud probability and a suggested action.
-Bulk analysis: upload a CSV of transactions, get a summary and a table of flagged rows, and download the results.
-Review queue: transactions the model is unsure about wait here for a person to mark them fraud or genuine.
-Feedback log: every human decision is recorded (time, model probability, model's guess, reviewer's decision, whether they matched) and can be downloaded as CSV.
-Two views of the inputs: a simple view (amount in ₹, time in IST) and the original dataset values.
-How the review band works
+**What it does**
+**Single check**: score one transaction and get a verdict (likely fraud, looks genuine, or needs review) with the fraud probability and a suggested action.
+**Bulk analysis**: upload a CSV of transactions, get a summary and a table of flagged rows, and download the results.
+**Review queue**: transactions the model is unsure about wait here for a person to mark them fraud or genuine.
+**Feedback log**: every human decision is recorded (time, model probability, model's guess, reviewer's decision, whether they matched) and can be downloaded as CSV.
+**Two views of the inputs**: a simple view (amount in ₹, time in IST) and the original dataset values.
+**How the review band works**
 
 The Random Forest outputs a fraud probability for each transaction.
 
-Probability	Decision
-0.2 or below	Approved automatically
-0.8 or above	Flagged as fraud
-Between 0.2 and 0.8	Sent to a human reviewer
+**Probability**	            **Decision**
+0.2 or below	        Approved automatically
+0.8 or above	        Flagged as fraud
+Between 0.2 and 0.8   	Sent to a human reviewer
 
 The thresholds were chosen on a validation set carved out of the training data, so the test set stayed untouched.
 
-Method
+**Method**
 Dataset: ULB Credit Card Fraud (284,807 transactions, 492 frauds).
 Removed 1,081 duplicate rows (283,726 rows, 473 frauds left).
 80/20 stratified train/test split, done before anything else.
@@ -29,12 +29,14 @@ RobustScaler on Time and Amount, fitted on the training set only.
 SMOTE on the training set only. The test set is never resampled.
 Four classifiers trained and compared: Logistic Regression, linear SVM, Random Forest, XGBoost.
 Evaluated with precision, recall, F1 and PR-AUC on the untouched test set (56,746 rows, 95 frauds).
-Results (test set, default 0.5 threshold)
-Model	Precision	Recall	F1	PR-AUC	Missed frauds	False alarms
-Logistic Regression	0.054	0.874	0.101	0.673	12	1,463
-Linear SVM (100K sample)	0.055	0.874	0.103	0.658	12	1,432
-Random Forest	0.914	0.779	0.841	0.807	21	7
-XGBoost	0.743	0.789	0.765	0.820	20	26
+
+**Results (test set, default 0.5 threshold)**
+**Model	                    Precision	Recall	F1		PR-AUC	Missed frauds|	False alarms**
+-----------------------------------------------------------------------------------------------
+Logistic Regression	        0.054	    0.874	0.101	0.673	12			 |1,463
+Linear SVM (100K sample)	0.055	    0.874	0.103	0.658	12			 |1,432
+Random Forest	            0.914	    0.779	0.841	0.807	21			 |7
+XGBoost                 	0.743		0.789	0.765	0.820	20			 |26
 
 The deployed model is a Random Forest refit on 80% of the training data (to leave a validation set for choosing the band). On the test set:
 
