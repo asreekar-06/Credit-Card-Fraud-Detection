@@ -112,13 +112,16 @@ vercel
 
 The ULB dataset is not included in this repository. Download "Credit Card Fraud Detection" (Machine Learning Group, ULB) from Kaggle. Its columns are Time (seconds since the first transaction), Amount, V1 to V28 (anonymised PCA features) and Class.
 
-**Limitations**
-V1 to V28 are anonymised, so a person cannot meaningfully type them in. The single check works with the sample buttons or an edited sample.
-The ₹ and IST view is a demo convenience. It assumes the data starts at 12:00 am IST on the first day and that ₹100 equals 1 unit of the dataset's amount. The dataset states neither, and the model is unchanged and was trained on the original values.
-The feedback log is stored in the browser and does not retrain the model. Retraining on reviewed cases is future work.
-The SVM is linear and trained on a 100K sample, because a kernel SVM is too slow on the full training set.
-Frauds the model scores below 0.2 are approved automatically, so the review band cannot catch cases the model is confidently wrong about (18 in the test set).
-Real-time monitoring, explainable AI, spending-pattern analysis and live banking API integration are future work.
+### Limitations
+
+- **Anonymised Features:** V1 to V28 are anonymised, so users cannot meaningfully enter them manually.
+- **Single Transaction Check:** Works with the sample buttons or an edited sample.
+- **₹ and IST Display:** A demo convenience that assumes the data starts at 12:00 AM IST on the first day and that ₹100 equals 1 unit of the dataset's amount. The dataset specifies neither assumption.
+- **Original Model Values:** The model remains unchanged and was trained on the original values.
+- **Feedback Logging:** The feedback log is stored in the browser and does not retrain the model. Retraining on reviewed cases is future work.
+- **Linear SVM:** Trained on a 100K sample because a kernel SVM is too slow on the full training set.
+- **Review Band Limitation:** Frauds scored below 0.2 are approved automatically, so the review band cannot catch cases the model is confidently wrong about (18 in the test set).
+- **Future Work:** Real-time monitoring, explainable AI, spending-pattern analysis, and live banking API integration.
 
 **Team**
 Addepalli Sreekar, Adepoju Sandeep Chary, Bushipaka Vamshi, Nara Abhirama
