@@ -60,7 +60,7 @@ If reviewers decide correctly, the band catches 77 of 95 frauds (recall about 0.
 Storage**: review queue and feedback log are kept in the browser (localStorage)
 
 **Project structure**
-## 📁 Project Structure
+## Project Structure
 
 ```text
 fraud-detection/
@@ -78,36 +78,49 @@ fraud-detection/
 ├── pyproject.toml                  # Project configuration
 └── vercel.json                     # Vercel deployment configuration
 ```
-Run it
 
-Check the model locally
+**Run it**
 
+**Check the model locally**
+### 
+
+Install the required dependencies:
+
+```bash
 pip install scikit-learn==1.6.1 pandas joblib
+```
+
+Run the local test script:
+
+```bash
 python test_local.py
+```
 
 The model only loads reliably with scikit-learn 1.6.1, the version it was trained with.
 
-Deploy to Vercel
+**Deploy to Vercel**
 
+```bash
 npm install -g vercel
 vercel login
 vercel
+```
 
-Retrain: open the notebook in Notebooks/ in Google Colab, upload creditcard.csv, and run the cells in order.
+**Retrain**: open the notebook in Notebooks/ in Google Colab, upload creditcard.csv, and run the cells in order.
 
-Dataset
+**Dataset**
 
 The ULB dataset is not included in this repository. Download "Credit Card Fraud Detection" (Machine Learning Group, ULB) from Kaggle. Its columns are Time (seconds since the first transaction), Amount, V1 to V28 (anonymised PCA features) and Class.
 
-Limitations
+**Limitations**
 V1 to V28 are anonymised, so a person cannot meaningfully type them in. The single check works with the sample buttons or an edited sample.
 The ₹ and IST view is a demo convenience. It assumes the data starts at 12:00 am IST on the first day and that ₹100 equals 1 unit of the dataset's amount. The dataset states neither, and the model is unchanged and was trained on the original values.
 The feedback log is stored in the browser and does not retrain the model. Retraining on reviewed cases is future work.
 The SVM is linear and trained on a 100K sample, because a kernel SVM is too slow on the full training set.
 Frauds the model scores below 0.2 are approved automatically, so the review band cannot catch cases the model is confidently wrong about (18 in the test set).
 Real-time monitoring, explainable AI, spending-pattern analysis and live banking API integration are future work.
-Team
 
+**Team**
 Addepalli Sreekar, Adepoju Sandeep Chary, Bushipaka Vamshi, Nara Abhirama
 
-Guide: Ms. V. Veda Sri, Assistant Professor, Department of CSE (AI & ML), Samskruti College of Engineering & Technology, Hyderabad
+**Guide**: Ms. V. Veda Sri, Assistant Professor, Department of CSE (AI & ML), Samskruti College of Engineering & Technology, Hyderabad
