@@ -153,6 +153,10 @@ The ULB dataset is not included in this repository. Download "Credit Card Fraud 
 - **Review Band Limitation:** Frauds scored below 0.2 are approved automatically, so the review band cannot catch cases the model is confidently wrong about (18 in the test set).
 - **Future Work:** Real-time monitoring, explainable AI, spending-pattern analysis, and live banking API integration.
 
+## Dataset link
+
+Credit Card Fraud Detection, Machine Learning Group (ULB), on Kaggle: https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud
+
 ## Team
 
 - Addepalli Sreekar
