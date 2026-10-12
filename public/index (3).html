@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Credit Card Fraud Detection</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3f5f8;--sf:#fff;--ink:#0f1c2e;--mut:#5b6b80;--ln:#dde3ec;--ac:#2447d6;--fr:#c4261d;--rv:#b9770e;--ok:#17794d}
+@media(prefers-color-scheme:dark){:root{--bg:#0c1220;--sf:#131c2e;--ink:#e8eef8;--mut:#93a3ba;--ln:#25324a;--ac:#6f8cff;--fr:#ff6b60;--rv:#f0b34a;--ok:#4cc58a}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 'Instrument Sans',system-ui,sans-serif}
+h1,h2{font-family:'Bricolage Grotesque',system-ui,sans-serif;margin:0;letter-spacing:-.02em}
+header,main{max-width:980px;margin:0 auto;padding:0 20px}header{padding-top:28px}
+h1{font-size:clamp(26px,5vw,38px)}header p{color:var(--mut);margin:6px 0 18px;max-width:60ch}
+nav{display:flex;gap:4px;border-bottom:1px solid var(--ln);overflow-x:auto}
+nav button{background:none;border:0;border-bottom:3px solid transparent;color:var(--mut);font:inherit;font-weight:600;padding:10px 14px;cursor:pointer;white-space:nowrap}
+nav button[aria-selected=true]{color:var(--ink);border-color:var(--ac)}
+.n{background:var(--rv);color:#fff;border-radius:99px;padding:0 7px;font-size:12px;margin-left:6px}
+section{display:none;padding:22px 0 60px}section.on{display:block}
+.box{background:var(--sf);border:1px solid var(--ln);border-radius:10px;padding:18px;margin-bottom:16px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:end}
+label{display:block;font-size:13px;color:var(--mut);margin-bottom:3px}
+input[type=number]{width:100%;padding:8px 10px;border:1px solid var(--ln);border-radius:6px;background:var(--bg);color:var(--ink);font:inherit}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin-top:12px}
+button.b{background:var(--ac);color:#fff;border:0;border-radius:6px;padding:9px 16px;font:inherit;font-weight:600;cursor:pointer}
+button.g{background:none;color:var(--ink);border:1px solid var(--ln);border-radius:6px;padding:9px 14px;font:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+button:disabled{opacity:.5;cursor:wait}
+.bar{position:relative;height:14px;border-radius:7px;margin:34px 0 8px;display:flex;overflow:visible}
+.bar i{display:block;height:100%}.bar .z1{background:var(--ok);border-radius:7px 0 0 7px}.bar .z2{background:var(--rv)}.bar .z3{background:var(--fr);border-radius:0 7px 7px 0}
+.mk{position:absolute;top:-8px;width:4px;height:30px;background:var(--ink);border-radius:2px;transition:left .5s cubic-bezier(.2,.8,.2,1)}
+.mk b{position:absolute;top:-24px;left:50%;transform:translateX(-50%);font-size:13px}
+.tag{display:inline-block;border-radius:6px;padding:2px 10px;font-weight:600;color:#fff}
+.fraud{background:var(--fr)}.review{background:var(--rv)}.genuine{background:var(--ok)}
+.verdict{font-family:'Bricolage Grotesque',sans-serif;font-size:28px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:16px}
+.stats div{background:var(--sf);border:1px solid var(--ln);border-radius:10px;padding:12px}.stats b{font-size:24px;display:block}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;padding:8px;border-bottom:1px solid var(--ln)}th{color:var(--mut);font-weight:500}
+.wrap{overflow-x:auto}.mut{color:var(--mut)}.err{color:var(--fr);font-weight:500}
+.item{display:flex;gap:12px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+@media(prefers-reduced-motion:reduce){.mk{transition:none}}
+button[aria-pressed=true]{background:var(--ac);color:#fff;border-color:var(--ac)}.zl{display:flex;font-size:12px;color:var(--mut);margin-bottom:10px}.zl span{text-align:center;overflow:hidden;white-space:nowrap;font-weight:500}
+.drop{border:2px dashed var(--ln);border-radius:10px;padding:26px;text-align:center;cursor:pointer}.drop.on{border-color:var(--ac);background:color-mix(in srgb,var(--ac) 8%,transparent)}
+progress{width:100%;height:8px;accent-color:var(--ac)}
+.pill{display:inline-block;font-size:12px;border-radius:99px;padding:2px 10px;border:1px solid var(--ln);color:var(--mut)}.pill.ok{color:var(--ok);border-color:var(--ok)}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}.steps div{background:var(--bg);border-radius:8px;padding:12px}.steps b{display:block}
+.undo{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);border-radius:8px;padding:10px 16px;z-index:9}.undo button{background:none;border:0;color:inherit;font-weight:600;text-decoration:underline;cursor:pointer;margin-left:10px}
+.tw{display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+@media(max-width:600px){header,main{padding:0 12px}.box{padding:14px}.verdict{font-size:22px}.grid{grid-template-columns:repeat(auto-fill,minmax(90px,1fr))}.item button{flex:1}}
+
+:root{--bg:#f3f4fb;--sf:#fff;--ink:#141a35;--mut:#5d6585;--ln:#e3e6f3;--ac:#4f46e5;--ac2:#7c3aed;--fr:#e11d48;--rv:#d97706;--ok:#059669;--sh:0 10px 34px rgba(40,50,110,.09)}
+@media(prefers-color-scheme:dark){:root{--bg:#0b1020;--sf:#131a33;--ink:#eaeeff;--mut:#9aa5cc;--ln:#242d4f;--ac:#8b93ff;--ac2:#b18cff;--fr:#ff6b8a;--rv:#f6b04a;--ok:#34d399;--sh:0 10px 34px rgba(0,0,0,.35)}}
+body{font-size:15.5px}
+header{max-width:none;padding:34px max(20px,calc((100% - 940px)/2)) 0;background:linear-gradient(135deg,#312e81,#4f46e5 55%,#7c3aed);color:#fff;border-radius:0 0 30px 30px;box-shadow:0 14px 40px rgba(79,70,229,.25)}
+@media(prefers-color-scheme:dark){header{background:linear-gradient(135deg,#1e1b4b,#3730a3 55%,#5b21b6)}}
+.brand{display:flex;align-items:center;gap:14px}h1{color:#fff;font-size:clamp(24px,5vw,36px)}
+header p{color:rgba(255,255,255,.82)}
+.pill{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.35);color:#fff}.pill.ok{color:#a7f3d0;border-color:#6ee7b7}
+nav{border-bottom:0;gap:6px;margin-top:8px}
+nav button{color:rgba(255,255,255,.78);border:0;border-radius:12px 12px 0 0;padding:12px 18px;transition:background .2s,color .2s}
+nav button:hover{background:rgba(255,255,255,.14);color:#fff}
+nav button[aria-selected=true]{background:var(--bg);color:var(--ink)}
+section{padding:26px 0 70px;animation:rise .35s ease both}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.box{border-radius:18px;box-shadow:var(--sh);padding:22px;border:1px solid var(--ln)}
+h2{letter-spacing:-.01em}
+input[type=number],input[type=time]{border-radius:10px;padding:10px 12px;transition:border-color .2s,box-shadow .2s}
+input:focus{border-color:var(--ac);box-shadow:0 0 0 3px color-mix(in srgb,var(--ac) 25%,transparent);outline:0}
+button.b{background:linear-gradient(135deg,var(--ac),var(--ac2));border-radius:10px;padding:11px 22px;box-shadow:0 6px 18px color-mix(in srgb,var(--ac) 35%,transparent);transition:transform .15s,box-shadow .15s}
+button.b:hover:not(:disabled){transform:translateY(-1px)}
+button.g{border-radius:10px;transition:background .2s,border-color .2s}button.g:hover{border-color:var(--ac);background:color-mix(in srgb,var(--ac) 8%,transparent)}
+.bar{height:20px;border-radius:10px}.bar .z1{border-radius:10px 0 0 10px}.bar .z3{border-radius:0 10px 10px 0}
+.mk{width:6px;height:36px;top:-8px;background:var(--ink);border:2px solid var(--sf);border-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.tag{border-radius:8px;padding:3px 12px}.verdict{font-size:30px}
+.stats div{border-radius:14px;box-shadow:var(--sh);border-top:4px solid var(--ac)}.stats div:nth-child(2){border-top-color:var(--ok)}.stats div:nth-child(3){border-top-color:var(--fr)}.stats div:nth-child(4){border-top-color:var(--rv)}.stats b{font-size:28px}
+th{text-transform:uppercase;font-size:11.5px;letter-spacing:.06em}tbody tr:hover{background:color-mix(in srgb,var(--ac) 6%,transparent)}
+.drop{border-radius:16px;background:color-mix(in srgb,var(--ac) 4%,transparent);padding:34px;transition:border-color .2s,background .2s}.drop:hover{border-color:var(--ac)}
+.steps div{border-radius:14px;border:1px solid var(--ln)}
+@media(max-width:600px){header{padding:24px 14px 0;border-radius:0 0 22px 22px}.brand svg{width:34px;height:34px}nav button{padding:10px 12px}}
+@media(prefers-reduced-motion:reduce){section{animation:none}}
+</style></head><body>
+<header><div class="brand"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2.5l8 3v6.2c0 4.7-3.2 8.4-8 9.8-4.8-1.4-8-5.1-8-9.8V5.5l8-3z" fill="rgba(255,255,255,.18)" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/><path d="M8.2 12.2l2.6 2.6 5-5.3" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><h1>Credit Card Fraud Detection</h1></div>
+<p>Score a transaction or a whole file. Uncertain cases go to a person instead of being decided automatically.</p><p style="margin:0 0 14px"><span class="pill" id="pill">Checking model...</span></p>
+<nav role="tablist" id="nav"></nav></header>
+<main>
+<section id="single"><div class="box"><p class="mut" style="margin-top:0">Pick a sample transaction, or enter the time and amount. The system tells you how likely it is to be fraud and what to do about it.</p><div class="row" style="justify-content:flex-end;gap:14px;font-size:13px;margin:0 0 8px"><span class="mut">View:</span><label style="display:inline-flex;gap:5px;align-items:center;margin:0;cursor:pointer"><input type="radio" name="view" id="m-in" checked> ₹ and IST</label><label style="display:inline-flex;gap:5px;align-items:center;margin:0;cursor:pointer"><input type="radio" name="view" id="m-raw"> Original values</label></div>
+<div class="row"><button class="g" id="sg">Load genuine sample</button><button class="g" id="sf">Load fraud sample</button><button class="g" id="sr">Load random sample</button><span class="mut" id="smsg"></span></div>
+<div class="grid" id="main-in"></div><p class="mut" id="dnote" style="font-size:13px;margin:10px 0 0">Demo assumptions: the dataset does not state its currency or the clock time of its first transaction. This page assumes it starts at 12:00 am IST on Day 1 and that ₹100 is 1 unit of the dataset's amount. These only change how values are entered and shown, not the model. The time is treated as a time on the dataset's first day.</p>
+<details style="margin-top:12px"><summary class="mut" style="cursor:pointer">Hidden pattern features V1 to V28 (anonymised by the data provider, filled in automatically by the samples)</summary><div class="grid" id="v-in"></div></details>
+<p><button class="b" id="chk">Check transaction</button> <span class="err" id="serr"></span></p></div>
+<div class="box" id="res" hidden><div class="verdict" id="vd"></div>
+<div class="bar"><i class="z1" id="z1"></i><i class="z2" id="z2"></i><i class="z3" id="z3"></i><div class="mk" id="mk"><b id="mkv"></b></div></div>
+<div class="zl"><span id="l1">Approve</span><span id="l2">Review</span><span id="l3">Flag</span></div><div class="mut" id="vnote"></div></div></section>
+
+<section id="bulk"><div class="box"><div class="drop" id="drop"><b>Drop a CSV file here, or click to choose one</b><div class="mut">Same columns as the dataset: Time, Amount and V1 to V28</div></div><input type="file" id="file" accept=".csv" hidden><progress id="bprog" hidden></progress> <span class="mut" id="bmsg"></span><div class="err" id="berr"></div></div>
+<div id="bout" hidden><div class="stats" id="stats"></div><div class="box tw"><svg id="donut" width="120" height="120" viewBox="0 0 42 42" role="img" aria-label="Decision split"></svg><div id="dleg" class="mut"></div></div>
+<div class="box"><div class="row" style="justify-content:space-between"><h2 style="font-size:20px">Flagged and uncertain rows (highest risk first, top 100)</h2><button class="g" id="dl">Download all results</button></div>
+<div class="wrap"><table><thead><tr><th>Row</th><th>Time</th><th>Amount</th><th>Chance of fraud</th><th>Decision</th></tr></thead><tbody id="btb"></tbody></table></div></div></div></section>
+
+<section id="queue"><div class="box"><h2 style="font-size:20px">Review queue</h2><p class="mut">Transactions the model was not sure about. Your decision is saved to the feedback log.</p><div id="qlist"></div></div></section>
+
+<section id="log"><div class="stats" id="lstats"></div>
+<div class="box"><div class="row" style="justify-content:space-between"><h2 style="font-size:20px">Feedback log</h2><span><button class="g" id="ldl">Download CSV</button> <button class="g" id="lclr">Clear</button></span></div>
+<div class="wrap"><table><thead><tr><th>Time</th><th>Source</th><th>Probability</th><th>Model's guess</th><th>Reviewer's decision</th><th>Matched model?</th></tr></thead><tbody id="ltb"></tbody></table></div>
+<p class="mut" id="lempty">No decisions yet.</p></div></section>
+<section id="about"><div class="box"><h2 style="font-size:20px">How it works</h2><div class="steps" style="margin-top:12px"><div><b>1. Score</b>A Random Forest gives each transaction a fraud probability.</div><div><b>2. Decide</b>Up to 20% is approved, 80% or more is flagged, and the middle goes to a person.</div><div><b>3. Learn</b>Reviewer decisions are saved to the feedback log for later analysis.</div></div></div>
+<div class="box"><h2 style="font-size:20px">Model performance</h2><p class="mut">ULB dataset, test set of 56,746 transactions with 95 frauds, default 0.5 threshold. SMOTE was applied to the training data only.</p><div class="wrap"><table><thead><tr><th>Model</th><th>Precision</th><th>Recall</th><th>F1</th><th>PR-AUC</th></tr></thead><tbody><tr><td>Logistic Regression</td><td>0.054</td><td>0.874</td><td>0.101</td><td>0.673</td></tr><tr><td>Linear SVM</td><td>0.055</td><td>0.874</td><td>0.103</td><td>0.658</td></tr><tr><td>Random Forest</td><td>0.914</td><td>0.779</td><td>0.841</td><td>0.807</td></tr><tr><td>XGBoost</td><td>0.743</td><td>0.789</td><td>0.765</td><td>0.820</td></tr></tbody></table></div>
+<p class="mut">The app uses Random Forest. With the review band on the test set: 63 frauds caught automatically, 14 sent to a person, 18 missed, 2 false alarms.</p></div>
+<div class="box"><h2 style="font-size:20px">Limitations</h2><ul class="mut"><li>V1 to V28 are anonymised by the dataset, so only samples or uploaded files give meaningful scores.</li><li>The ₹ and IST view is a demo assumption. The model uses the original values.</li><li>The feedback log lives in this browser and does not retrain the model.</li><li>Frauds scored below 20% are approved automatically, so confident mistakes are not caught.</li></ul></div></section>
+</main>
+<script>
+const $=id=>document.getElementById(id),V=Array.from({length:28},(_,i)=>'V'+(i+1)),COLS=['Time','Amount',...V];
+let SAMPLES=[],Q=load('fq'),LOG=load('fl'),LOW=.2,HIGH=.8,last=null,curLabel=null;
+function load(k){try{return JSON.parse(localStorage.getItem(k))||[]}catch(e){return[]}}
+function save(){try{localStorage.setItem('fq',JSON.stringify(Q));localStorage.setItem('fl',JSON.stringify(LOG))}catch(e){}}
+const TABS=[['single','Single check'],['bulk','Bulk analysis'],['queue','Review queue'],['log','Feedback log'],['about','How it works']];
+$('nav').innerHTML=TABS.map(t=>`<button role="tab" data-t="${t[0]}">${t[1]}<span class="n" id="n-${t[0]}" hidden></span></button>`).join('');
+function show(t){document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id===t));document.querySelectorAll('nav button').forEach(b=>b.setAttribute('aria-selected',b.dataset.t===t))}
+$('nav').onclick=e=>{const b=e.target.closest('button');if(b)show(b.dataset.t)};show('single');
+const FS='padding:8px;border:1px solid var(--ln);border-radius:6px;background:var(--bg);color:var(--ink);font:inherit';
+COLS.forEach(c=>{const d=document.createElement('div');
+if(c==='Time'){d.style.gridColumn='span 2';d.innerHTML=`<div class="fr"><label for="t-hm">Time of transaction (IST, assumed)</label><input type="time" id="t-hm" style="${FS}"></div><div class="rw" hidden><label for="r-time">Time (seconds since the first transaction)</label><input type="number" step="any" id="r-time"></div><input type="number" id="i-Time" hidden><div class="mut" id="tnote" style="font-size:12px"></div>`}
+else if(c==='Amount')d.innerHTML=`<div class="fr"><label for="a-inr">Amount (₹)</label><input type="number" step="any" min="0" id="a-inr"></div><div class="rw" hidden><label for="r-amt">Amount (dataset units)</label><input type="number" step="any" min="0" id="r-amt"></div><input type="number" id="i-Amount" hidden><div class="mut" id="inr" style="font-size:12px"></div>`;
+else d.innerHTML=`<label for="i-${c}">${c}</label><input type="number" step="any" id="i-${c}">`;
+$(c==='Time'||c==='Amount'?'main-in':'v-in').appendChild(d)});
+fetch('sample_transactions.csv').then(r=>r.text()).then(t=>{SAMPLES=csv(t)}).catch(()=>{});
+function csv(t){const L=t.trim().split(/\r?\n/),h=L[0].split(',').map(s=>s.replace(/"/g,'').trim());return L.slice(1).filter(Boolean).map(l=>{const v=l.split(','),o={};h.forEach((k,i)=>o[k]=v[i]);return o})}
+function sample(cls){const s=SAMPLES.filter(r=>cls===undefined||r.Class==cls);if(!s.length){$('smsg').textContent='Samples not loaded. Make sure sample_transactions.csv is in the public folder.';return}
+const r=s[Math.floor(Math.random()*s.length)];COLS.forEach(c=>$('i-'+c).value=r[c]);syncFromSecs(r.Time);showAmt();curLabel=r.Class;$('smsg').textContent='';$('serr').textContent=''}
+$('sg').onclick=()=>sample(0);$('sf').onclick=()=>sample(1);$('sr').onclick=()=>sample();$('single').addEventListener('input',()=>{curLabel=null});
+const RATE=100;/* illustrative only: rupees per 1 unit of Amount. Edit to change the assumption */
+function amt(){const v=parseFloat($('a-inr').value);if(isNaN(v)){$('i-Amount').value='';$('r-amt').value='';$('inr').textContent='';return}$('i-Amount').value=v/RATE;$('r-amt').value=v/RATE;$('inr').textContent=`Sent to the model as ${(v/RATE).toLocaleString('en-IN',{maximumFractionDigits:2})} dataset units (assumed ₹${RATE} per unit)`}
+function showAmt(){const a=parseFloat($('i-Amount').value);$('a-inr').value=isNaN(a)?'':+(a*RATE).toFixed(2);$('r-amt').value=isNaN(a)?'':a;$('inr').textContent=isNaN(a)?'':`Dataset value: ${a} units (assumed ₹${RATE} per unit)`}
+$('a-inr').oninput=amt;
+function fmtTime(s){s=+s;return MODE==='raw'?s+' s':t12(s)}
+function fmtINR(a){if(MODE==='raw')return String(+(+a).toFixed(2));return '₹'+(+a*RATE).toLocaleString('en-IN',{maximumFractionDigits:2})}
+function t12(s){s=+s;const m=Math.floor((s%86400)/60),h=Math.floor(m/60);return `${((h+11)%12)+1}:${String(m%60).padStart(2,'0')} ${h>=12?'pm':'am'}`}
+function syncFromSecs(s){s=+s;if(document.activeElement!==$('r-time'))$('r-time').value=s;const m=Math.floor((s%86400)/60);$('t-hm').value=String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');$('tnote').textContent=`${t12(s)} IST (assumed). Sent to the model as ${s.toLocaleString('en-IN')} seconds.`}
+function syncToSecs(){const[h,m]=($('t-hm').value||'0:0').split(':').map(Number);const t=h*3600+m*60;$('i-Time').value=t;$('r-time').value=t;$('tnote').textContent=`${t12(t)} IST (assumed). Sent to the model as ${t.toLocaleString('en-IN')} seconds.`}
+$('t-hm').onchange=syncToSecs;
+let MODE='in';
+$('r-time').oninput=()=>{const v=$('r-time').value;$('i-Time').value=v;if(v!=='')syncFromSecs(v)};
+$('r-amt').oninput=()=>{const a=parseFloat($('r-amt').value);$('i-Amount').value=isNaN(a)?'':a;$('a-inr').value=isNaN(a)?'':+(a*RATE).toFixed(2);$('inr').textContent=isNaN(a)?'':`Dataset value: ${a} units (assumed ₹${RATE} per unit)`};
+function drawBulk(){if(!last)return;const fl=last.out.map((o,i)=>[o,i]).filter(x=>x[0].decision!=='genuine').sort((a,b)=>b[0].probability-a[0].probability);$('btb').innerHTML=fl.slice(0,100).map(([o,i])=>`<tr><td>${i+1}</td><td>${fmtTime(last.rows[i].Time)}</td><td>${fmtINR(last.rows[i].Amount)}</td><td>${pct(o.probability)}</td><td><span class="tag ${o.decision}">${LBL[o.decision]}</span></td></tr>`).join('')||'<tr><td colspan="5" class="mut">Nothing flagged.</td></tr>'}
+function setMode(m){MODE=m;document.querySelectorAll('.fr').forEach(e=>e.hidden=m!=='in');document.querySelectorAll('.rw').forEach(e=>e.hidden=m!=='raw');['inr','tnote','dnote'].forEach(i=>$(i).hidden=m!=='in');$('m-in').setAttribute('aria-pressed',m==='in');$('m-raw').setAttribute('aria-pressed',m==='raw');render();drawBulk()}
+$('m-in').onchange=()=>setMode('in');$('m-raw').onchange=()=>setMode('raw');
+async function predict(rows){const r=await fetch('/api/predict',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({rows})});
+let j={};try{j=await r.json()}catch(e){}if(!r.ok)throw new Error(j.error||'The server could not score this request.');LOW=j.low;HIGH=j.high;return j.results}
+const pct=p=>p>0&&p<.001?'<0.1%':(p*100).toFixed(1)+'%',lean=p=>p>=.5?'fraud':'genuine',LBL={fraud:'Likely fraud',genuine:'Looks genuine',review:'Needs review'};
+$('chk').onclick=async()=>{const row={};$('serr').textContent='';
+for(const c of COLS){const v=$('i-'+c).value;if(v===''){$('serr').textContent='Fill in '+c+' or load a sample.';return}row[c]=v}
+$('chk').disabled=true;try{const[r]=await predict([row]);
+$('res').hidden=false;$('vd').innerHTML=`<span class="tag ${r.decision}">${{fraud:'Likely fraud',genuine:'Looks genuine',review:'Needs review'}[r.decision]}</span> <span class="mut" style="font-size:18px">${pct(r.probability)} fraud probability</span>`;
+$('z1').style.width=LOW*100+'%';$('z2').style.width=(HIGH-LOW)*100+'%';$('z3').style.width=(1-HIGH)*100+'%';$('l1').style.width=LOW*100+'%';$('l2').style.width=(HIGH-LOW)*100+'%';$('l3').style.width=(1-HIGH)*100+'%';
+$('mk').style.left=`calc(${Math.min(r.probability,.995)*100}% - 2px)`;$('mkv').textContent=pct(r.probability);
+$('vnote').textContent={fraud:`This looks like fraud: the model is ${pct(r.probability)} sure. Suggested action: block it and contact the cardholder.`,genuine:`This looks normal: there is only a ${pct(r.probability)} chance of fraud. Suggested action: approve it.`,review:`The model is not sure (${pct(r.probability)} chance of fraud), so a person should check it before it is approved or blocked. It has been added to the review queue.`}[r.decision]+` Rule used: up to ${LOW*100}% is approved, ${HIGH*100}% or more is flagged, and anything in between goes to a person.`+(curLabel===null?'':` Actual answer in the dataset: ${curLabel==1?'fraud':'genuine'}.`);
+if(r.decision==='review'){Q.push({id:'Single check '+new Date().toLocaleTimeString(),p:r.probability,t:row.Time,a:row.Amount,r:row});save();render()}
+}catch(e){$('serr').textContent=e.message}$('chk').disabled=false};
+const BN=2000;
+$('file').onchange=e=>runFile(e.target.files[0]);async function runFile(f){if(!f)return;$('berr').textContent='';$('bout').hidden=true;
+try{const rows=csv(await f.text());if(!rows.length)throw new Error('The file has no rows.');
+const miss=COLS.filter(c=>!(c in rows[0]));if(miss.length)throw new Error('Missing columns: '+miss.slice(0,6).join(', ')+(miss.length>6?'...':''));
+const out=[];for(let i=0;i<rows.length;i+=BN){$('bmsg').textContent=`Scoring ${Math.min(i+BN,rows.length)} of ${rows.length}...`;$('bprog').hidden=false;$('bprog').max=rows.length;$('bprog').value=Math.min(i+BN,rows.length);
+out.push(...await predict(rows.slice(i,i+BN).map(r=>Object.fromEntries(COLS.map(c=>[c,r[c]])))))}
+$('bmsg').textContent=f.name;$('bprog').hidden=true;last={rows,out};
+const n=d=>out.filter(o=>o.decision===d).length;
+$('stats').innerHTML=[['Transactions checked',rows.length],['Look genuine',n('genuine')],['Likely fraud',n('fraud')],['Need review',n('review')]].map(s=>`<div><b>${s[1]}</b>${s[0]}</div>`).join('');donut({genuine:n('genuine'),fraud:n('fraud'),review:n('review')});
+const fl=out.map((o,i)=>[o,i]).filter(x=>x[0].decision!=='genuine').sort((a,b)=>b[0].probability-a[0].probability);
+$('btb').innerHTML=fl.slice(0,100).map(([o,i])=>`<tr><td>${i+1}</td><td>${fmtTime(rows[i].Time)}</td><td>${fmtINR(rows[i].Amount)}</td><td>${pct(o.probability)}</td><td><span class="tag ${o.decision}">${LBL[o.decision]}</span></td></tr>`).join('')||'<tr><td colspan="5" class="mut">Nothing flagged.</td></tr>';
+fl.filter(x=>x[0].decision==='review').forEach(([o,i])=>Q.push({id:f.name+' row '+(i+1),p:o.probability,t:rows[i].Time,a:rows[i].Amount,r:Object.fromEntries(COLS.map(c=>[c,rows[i][c]]))}));save();render();$('bout').hidden=false;
+}catch(er){$('berr').textContent=er.message;$('bmsg').textContent='';$('bprog').hidden=true}};
+$('dl').onclick=()=>{if(!last)return;const h=Object.keys(last.rows[0]);dl('results.csv',[h.concat(['fraud_probability','decision']).join(',')].concat(last.rows.map((r,i)=>h.map(k=>r[k]).concat([last.out[i].probability,last.out[i].decision]).join(','))).join('\n'))};
+function dl(n,t){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/csv'}));a.download=n;a.click()}
+const DET=q=>q.r?`<details><summary class="mut" style="cursor:pointer;font-size:13px">All values</summary><div class="mut" style="font-size:12px;max-width:520px">${Object.entries(q.r).map(([k,v])=>k+': '+(+v).toFixed(3)).join(' · ')}</div></details>`:'';
+let UNDO=null;
+function decide(i,h){const q=Q.splice(i,1)[0],e={ts:new Date().toLocaleString(),src:q.id,p:q.p,lean:lean(q.p),h};LOG.unshift(e);UNDO={q,i,e};save();render();toast('Marked '+h+'.')}
+function toast(m){let t=$('undo');if(!t){t=document.createElement('div');t.id='undo';t.className='undo';document.body.appendChild(t)}t.innerHTML=m+'<button onclick="undo()">Undo</button>';t.hidden=false;clearTimeout(window._ut);window._ut=setTimeout(()=>t.hidden=true,6000)}
+function undo(){if(!UNDO)return;LOG=LOG.filter(x=>x!==UNDO.e);Q.splice(UNDO.i,0,UNDO.q);UNDO=null;save();render();$('undo').hidden=true}
+window.undo=undo;
+function donut(c){const t=c.genuine+c.fraud+c.review||1,col={genuine:'var(--ok)',review:'var(--rv)',fraud:'var(--fr)'};let off=25,h='<circle cx="21" cy="21" r="15.9" fill="none" stroke="var(--ln)" stroke-width="6"/>';for(const k of['genuine','review','fraud']){const p=c[k]/t*100;if(p>0){h+=`<circle cx="21" cy="21" r="15.9" fill="none" stroke="${col[k]}" stroke-width="6" stroke-dasharray="${p} ${100-p}" stroke-dashoffset="${off}"/>`;off-=p}}$('donut').innerHTML=h;$('dleg').innerHTML=['genuine','review','fraud'].map(k=>`<div><span class="tag ${k}" style="padding:0 8px">${LBL[k]}</span> ${c[k]} (${(c[k]/t*100).toFixed(1)}%)</div>`).join('')}
+$('drop').onclick=()=>$('file').click();
+['dragover','dragenter'].forEach(e=>$('drop').addEventListener(e,ev=>{ev.preventDefault();$('drop').classList.add('on')}));
+['dragleave','drop'].forEach(e=>$('drop').addEventListener(e,ev=>{ev.preventDefault();$('drop').classList.remove('on')}));
+$('drop').addEventListener('drop',ev=>{const f=ev.dataTransfer.files[0];if(f)runFile(f)});
+window.decide=decide;
+function render(){const set=(id,n)=>{$('n-'+id).hidden=!n;$('n-'+id).textContent=n};set('queue',Q.length);
+$('qlist').innerHTML=Q.map((q,i)=>`<div class="item" style="padding:10px 0;border-top:1px solid var(--ln)"><div><b>${q.id}</b><div class="mut">${fmtTime(q.t)}, ${fmtINR(q.a)}, ${pct(q.p)} chance of fraud</div>${DET(q)}</div><div><button class="b" style="background:var(--fr)" onclick="decide(${i},'fraud')">Mark fraud</button> <button class="b" style="background:var(--ok)" onclick="decide(${i},'genuine')">Mark genuine</button></div></div>`).join('')||'<p class="mut">Nothing to review. Uncertain transactions will show up here.</p>';
+const ag=LOG.filter(l=>l.lean===l.h).length;
+$('lstats').innerHTML=`<div><b>${LOG.length}</b>Decisions</div><div><b>${LOG.length?Math.round(ag/LOG.length*100)+'%':'n/a'}</b>Matched the model's guess</div><div><b>${Q.length}</b>Waiting</div>`;
+$('ltb').innerHTML=LOG.map(l=>`<tr><td>${l.ts}</td><td>${l.src}</td><td>${pct(l.p)}</td><td>${l.lean}</td><td>${l.h}</td><td>${l.lean===l.h?'Yes':'No'}</td></tr>`).join('');$('lempty').hidden=!!LOG.length}
+$('ldl').onclick=()=>dl('feedback_log.csv',['time,source,fraud_probability,model_leaned,reviewer_said,agree'].concat(LOG.map(l=>[l.ts.replace(',',''),l.src,l.p,l.lean,l.h,l.lean===l.h].join(','))).join('\n'));
+$('lclr').onclick=()=>{if(confirm('Delete the whole feedback log?')){LOG=[];save();render()}};
+render();
+fetch('/api/predict').then(r=>r.json()).then(j=>{LOW=j.low;HIGH=j.high;$('pill').textContent=`Model online · review band ${LOW*100}% to ${HIGH*100}%`;$('pill').className='pill ok'}).catch(()=>{$('pill').textContent='Model offline'});
+</script></body></html>
